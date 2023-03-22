@@ -26,12 +26,22 @@ EDA_DIR = os.path.join(IMAGE_DIR, 'eda')
 RESULTS_DIR = os.path.join(IMAGE_DIR, 'results')
 MODEL_DIR = os.path.join(CURRENT_DIR, 'models')
 
-logging.basicConfig(
-    filename='logs/churn_library.log',
-    level=logging.INFO,
-    filemode='w',
-    format='%(name)s - %(levelname)s - %(message)s')
 
+def setup_logger(logger_name: str, log_file: str, level: str = logging.INFO) -> None:
+    '''Function to set up a logger'''
+    logger = logging.getLogger(logger_name)
+    formatter = logging.Formatter('%(message)s')
+    file_handler = logging.FileHandler(log_file, mode='w')
+    file_handler.setFormatter(formatter)
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+
+    logger.setLevel(level)
+    logger.addHandler(file_handler)
+    logger.addHandler(stream_handler)
+
+setup_logger('churn_library', 'logs/churn_library.log')
+churn_library_logger = logging.getLogger('churn_library')
 
 class PredictionsData:
     '''Class to hold the predictions data'''
@@ -194,42 +204,42 @@ def perform_eda(
             None
     '''
 
-    logging.info('Performing EDA')
-    logging.info('Plotting histograms')
+    churn_library_logger.info('Performing EDA')
+    churn_library_logger.info('Plotting histograms')
     for cat_column in cat_columns:
         try:
-            logging.info('Plotting histogram for %s', cat_column)
+            churn_library_logger.info('Plotting histogram for %s', cat_column)
             output_file_path = os.path.join(eda_dir, f'{cat_column}_hist.png')
             plot_histogram(df, cat_column, output_file_path)
         except KeyError as exception:
-            logging.error('Error plotting histogram for %s', cat_column)
-            logging.error(exception)
+            churn_library_logger.error('Error plotting histogram for %s', cat_column)
+            churn_library_logger.error(exception)
 
-    logging.info('Plotting Normalized Bar Plots')
+    churn_library_logger.info('Plotting Normalized Bar Plots')
     for quant_column in quant_columns:
         try:
-            logging.info('Plotting normalized bar plot for %s', quant_column)
+            churn_library_logger.info('Plotting normalized bar plot for %s', quant_column)
             output_file_path = os.path.join(
                 eda_dir, f'{quant_column}_bar_plot.png')
             plot_normalized_bar(df, quant_column, output_file_path)
         except KeyError as exception:
-            logging.error('Error plotting bar plot for %s', quant_column)
-            logging.error(exception)
+            churn_library_logger.error('Error plotting bar plot for %s', quant_column)
+            churn_library_logger.error(exception)
 
-    logging.info('Plotting Distribution Plots')
+    churn_library_logger.info('Plotting Distribution Plots')
     for distribution_plot_column in distribution_plot_columns:
         try:
-            logging.info('Plotting distribution plot for %s',
+            churn_library_logger.info('Plotting distribution plot for %s',
                          distribution_plot_column)
             file_name = f'{distribution_plot_column}_distribution_plot.png'
             output_file_path = os.path.join(eda_dir, file_name)
             plot_distribution(df, distribution_plot_column, output_file_path)
         except KeyError as exception:
-            logging.error('Error plotting distribution plot for %s',
+            churn_library_logger.error('Error plotting distribution plot for %s',
                           distribution_plot_column)
-            logging.error(exception)
+            churn_library_logger.error(exception)
 
-    logging.info('Plotting Heat Map')
+    churn_library_logger.info('Plotting Heat Map')
     plt.figure(figsize=(20, 10))
     plt.title('Heat Map')
     sns.heatmap(df.corr(), annot=False, cmap='Dark2_r', linewidths=2)
@@ -237,7 +247,7 @@ def perform_eda(
     plt.show()
     plt.close()
 
-    logging.info('Finished EDA')
+    churn_library_logger.info('Finished EDA')
 
 
 def encoder_helper(
@@ -255,13 +265,13 @@ def encoder_helper(
             df: pandas dataframe with new columns for
     '''
     for col in category_lst:
-        logging.info('creating a new column for %s', col)
+        churn_library_logger.info('creating a new column for %s', col)
         df = df.join(
             df.groupby(col)[response].mean(),
             on=col,
             rsuffix='_Mean'
         ).rename(columns={response+'_Mean': col + '_' + response})
-        logging.info('SUCCESS: Created a new column for %s: %s',
+        churn_library_logger.info('SUCCESS: Created a new column for %s: %s',
                      col, col + "_" + response)
     return df
 
@@ -325,19 +335,19 @@ def classification_report_image(
     lr_test_results = classification_report(
         y_test, predictions_data.y_test_preds_lr)
 
-    logging.info('calculating scores')
+    churn_library_logger.info('calculating scores')
 
     plt.rc('figure', figsize=(5, 5))
     # plt.text(0.01, 0.05, str(model.summary()), {'fontsize': 12}) old approach
-    logging.info('random forest results')
-    logging.info('train results')
-    logging.info(rf_train_results)
+    churn_library_logger.info('random forest results')
+    churn_library_logger.info('train results')
+    churn_library_logger.info(rf_train_results)
     plt.text(x_style, 1.25, str('Random Forest Train'), **style_dict)
     # approach improved by OP -> monospace!
     plt.text(x_style, 0.05, str(rf_train_results), **style_dict)
 
-    logging.info('test results')
-    logging.info(rf_test_results)
+    churn_library_logger.info('test results')
+    churn_library_logger.info(rf_test_results)
     plt.text(x_style, 0.6, str('Random Forest Test'), **style_dict)
     # approach improved by OP -> monospace!
     plt.text(x_style, 0.7, str(rf_test_results), **style_dict)
@@ -346,13 +356,15 @@ def classification_report_image(
     plt.show()
 
     plt.rc('figure', figsize=(5, 5))
-    logging.info('logistic regression results')
-    logging.info('train results')
+    churn_library_logger.info('logistic regression results')
+    churn_library_logger.info('train results')
+    churn_library_logger.info(lr_train_results)
     plt.text(x_style, 1.25, str('Logistic Regression Train'), **style_dict)
     # approach improved by OP -> monospace!
     plt.text(x_style, 0.05, str(lr_train_results), **style_dict)
 
-    logging.info('test results')
+    churn_library_logger.info('test results')
+    churn_library_logger.info(lr_test_results)
     plt.text(x_style, 0.6, str('Logistic Regression Test'), **style_dict)
     # approach improved by OP -> monospace!
     plt.text(x_style, 0.7, str(lr_test_results), **style_dict)
