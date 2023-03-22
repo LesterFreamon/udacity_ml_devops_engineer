@@ -1,0 +1,5 @@
+{
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true, 
+    "python.linting.pylintArgs": ["--rcfile=~/learning/udacity/udacity_ml_devops_engineer/project_1_churn_simple/.pylintrc"]
+}
