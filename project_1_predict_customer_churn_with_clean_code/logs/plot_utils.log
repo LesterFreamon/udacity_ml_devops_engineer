@@ -1,0 +1,13 @@
+root - INFO - Performing EDA
+root - INFO - SUCCESS: EDA complete
+root - INFO - creating a new column for Gender
+root - INFO - SUCCESS: Created a new column for Gender: Gender_Churn
+root - INFO - creating a new column for Education_Level
+root - INFO - SUCCESS: Created a new column for Education_Level: Education_Level_Churn
+root - INFO - creating a new column for Marital_Status
+root - INFO - SUCCESS: Created a new column for Marital_Status: Marital_Status_Churn
+root - INFO - creating a new column for Income_Category
+root - INFO - SUCCESS: Created a new column for Income_Category: Income_Category_Churn
+root - INFO - creating a new column for Card_Category
+root - INFO - SUCCESS: Created a new column for Card_Category: Card_Category_Churn
+root - INFO - SUCCESS: split data to train and test sets
