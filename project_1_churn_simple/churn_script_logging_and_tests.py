@@ -8,13 +8,11 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 
 from churn_library import (PredictionsData, encoder_helper, import_data, perform_eda,
-                           perform_feature_engineering, train_models)
+                           perform_feature_engineering, setup_logger, train_models)
 
-logging.basicConfig(
-    filename='./logs/churn_script_logging_and_tests.log',
-    level=logging.INFO,
-    filemode='w',
-    format='%(name)s - %(levelname)s - %(message)s')
+setup_logger('churn_script_logging_and_tests', 'logs/churn_script_logging_and_tests.log')
+
+test_logger = logging.getLogger('churn_script_logging_and_tests')
 
 
 def test_import() -> None:
@@ -23,16 +21,16 @@ def test_import() -> None:
     '''
     try:
         df = import_data("./data/bank_data.csv", ["Dependent_count"])
-        logging.info("Testing import_data: SUCCESS")
+        test_logger.info("Testing import_data: SUCCESS")
     except FileNotFoundError as err:
-        logging.error("Testing import_eda: The file wasn't found")
+        test_logger.error("Testing import_eda: The file wasn't found")
         raise err
 
     try:
         assert df.shape[0] > 0
         assert df.shape[1] > 0
     except AssertionError as err:
-        logging.error(
+        test_logger.error(
             "Testing import_data: The file doesn't appear to have rows and columns")
         raise err
 
@@ -70,9 +68,9 @@ def test_eda() -> None:
             for column in distribution_plot_columns:
                 assert os.path.exists(os.path.join(eda_dir, f'{column}_distribution_plot.png'))
             assert os.path.exists(os.path.join(eda_dir, 'heat_map.png'))
-            logging.info("Testing perform_eda: SUCCESS")
+            test_logger.info("Testing perform_eda: SUCCESS")
         except FileNotFoundError as err:
-            logging.error("Testing perform_eda: The file wasn't found")
+            test_logger.error("Testing perform_eda: The file wasn't found")
             raise err
 
 
@@ -93,9 +91,9 @@ def test_encoder_helper() -> None:
 
     try:
         result_df = encoder_helper(df, category_lst, response)
-        logging.info("Testing encoder_helper: SUCCESS")
+        test_logger.info("Testing encoder_helper: SUCCESS")
     except FileNotFoundError as err:
-        logging.error("Testing encoder_helper: The file wasn't found")
+        test_logger.error("Testing encoder_helper: The file wasn't found")
         raise err
 
     # Expected output
@@ -112,7 +110,7 @@ def test_encoder_helper() -> None:
     try:
         pd.testing.assert_frame_equal(result_df, expected_df, check_like=True)
     except AssertionError as err:
-        logging.error(
+        test_logger.error(
             "Testing encoder_helper: The output doesn't match the expected output"
         )
         raise err
@@ -138,9 +136,9 @@ def test_perform_feature_engineering() -> None:
         x_train, x_test, y_train, y_test = perform_feature_engineering(
             df, feature_columns, target_column, test_size, random_state
         )
-        logging.info("Testing perform_feature_engineering: SUCCESS")
+        test_logger.info("Testing perform_feature_engineering: SUCCESS")
     except FileNotFoundError as err:
-        logging.error(
+        test_logger.error(
             "Testing perform_feature_engineering: The file wasn't found"
         )
         raise err
@@ -152,7 +150,7 @@ def test_perform_feature_engineering() -> None:
         assert y_train.shape == (3,)
         assert y_test.shape == (2,)
     except AssertionError as err:
-        logging.error(
+        test_logger.error(
             "Testing perform_feature_engineering: The output shapes don't match the expected output"
         )
         raise err
@@ -164,7 +162,7 @@ def test_perform_feature_engineering() -> None:
         assert isinstance(y_train, pd.Series)
         assert isinstance(y_test, pd.Series)
     except AssertionError as err:
-        logging.error(
+        test_logger.error(
             "Testing perform_feature_engineering: The output types don't match the expected output"
         )
         raise err
@@ -197,9 +195,9 @@ def test_train_models() -> None:
             assert isinstance(cv_rfc, GridSearchCV)
             assert isinstance(lrc, LogisticRegression)
             assert isinstance(predictions_data, PredictionsData)
-            logging.info("Testing train_models types: SUCCESS")
+            test_logger.info("Testing train_models types: SUCCESS")
         except AssertionError as err:
-            logging.error(
+            test_logger.error(
                 "Testing train_models types: The output types don't match the expected output"
             )
             raise err
@@ -209,9 +207,9 @@ def test_train_models() -> None:
             assert os.path.exists(os.path.join(model_dir, 'rfc_model.pkl'))
             assert os.path.exists(os.path.join(
                 model_dir, 'logistic_model.pkl'))
-            logging.info("Testing train_models models: SUCCESS")
+            test_logger.info("Testing train_models models: SUCCESS")
         except AssertionError as err:
-            logging.error(
+            test_logger.error(
                 "Testing train_models models: The models weren't saved in the temporary directory")
             raise err
 
