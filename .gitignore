@@ -5,3 +5,6 @@
 
 # Ignore virtual environment directory
 **/.venv/
+
+# Ignore wandb folder
+**/wandb/
