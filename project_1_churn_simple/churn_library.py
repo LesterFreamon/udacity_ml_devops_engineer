@@ -1,5 +1,8 @@
-'''This module contains functions for performing EDA and feature engineering on the churn data.'''
+'''This module contains functions for performing EDA and feature engineering on the churn data.
 
+Author: Adam Arnon
+Created: 03/22/2023
+'''
 
 # import libraries
 import logging
@@ -325,6 +328,11 @@ def classification_report_image(
     '''
     style_dict = {'fontdict': {'fontsize': 10}, 'fontproperties': 'monospace'}
     x_style = 0.01
+    y_train_title_height = 1.0
+    y_train_table_height = 0.7
+
+    y_test_title_height = 0.5
+    y_test_table_height = 0.2
     rf_train_results = classification_report(
         y_train, predictions_data.y_train_preds_rf)
     rf_test_results = classification_report(
@@ -337,40 +345,42 @@ def classification_report_image(
 
     churn_library_logger.info('calculating scores')
 
-    plt.rc('figure', figsize=(5, 5))
+    plt.rc('figure', figsize=(8, 8))
     # plt.text(0.01, 0.05, str(model.summary()), {'fontsize': 12}) old approach
     churn_library_logger.info('random forest results')
     churn_library_logger.info('train results')
     churn_library_logger.info(rf_train_results)
-    plt.text(x_style, 1.25, str('Random Forest Train'), **style_dict)
+    plt.text(x_style, y_train_title_height, str('Random Forest Train'), **style_dict)
     # approach improved by OP -> monospace!
-    plt.text(x_style, 0.05, str(rf_train_results), **style_dict)
+    plt.text(x_style, y_train_table_height, str(rf_train_results), **style_dict)
 
     churn_library_logger.info('test results')
     churn_library_logger.info(rf_test_results)
-    plt.text(x_style, 0.6, str('Random Forest Test'), **style_dict)
+    plt.text(x_style, y_test_title_height, str('Random Forest Test'), **style_dict)
     # approach improved by OP -> monospace!
-    plt.text(x_style, 0.7, str(rf_test_results), **style_dict)
+    plt.text(x_style, y_test_table_height, str(rf_test_results), **style_dict)
     plt.axis('off')
     plt.savefig(os.path.join(results_dir, 'rfc_classification_report.png'))
     plt.show()
+    plt.close()
 
-    plt.rc('figure', figsize=(5, 5))
+    plt.rc('figure', figsize=(8, 8))
     churn_library_logger.info('logistic regression results')
     churn_library_logger.info('train results')
     churn_library_logger.info(lr_train_results)
-    plt.text(x_style, 1.25, str('Logistic Regression Train'), **style_dict)
+    plt.text(x_style, y_train_title_height, str('Logistic Regression Train'), **style_dict)
     # approach improved by OP -> monospace!
-    plt.text(x_style, 0.05, str(lr_train_results), **style_dict)
+    plt.text(x_style, y_train_table_height, str(lr_train_results), **style_dict)
 
     churn_library_logger.info('test results')
     churn_library_logger.info(lr_test_results)
-    plt.text(x_style, 0.6, str('Logistic Regression Test'), **style_dict)
+    plt.text(x_style, y_test_title_height, str('Logistic Regression Test'), **style_dict)
     # approach improved by OP -> monospace!
-    plt.text(x_style, 0.7, str(lr_test_results), **style_dict)
+    plt.text(x_style, y_test_table_height, str(lr_test_results), **style_dict)
     plt.axis('off')
     plt.savefig(os.path.join(results_dir, 'lrc_classification_report.png'))
     plt.show()
+    plt.close()
 
 
 def feature_importance_plot(model: RandomForestClassifier,
@@ -387,6 +397,7 @@ def feature_importance_plot(model: RandomForestClassifier,
     '''
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(X_test)
+    plt.figure(figsize=(20, 10))
     shap.summary_plot(shap_values, X_test, plot_type="bar", show=False)
     plt.savefig(os.path.join(results_dir, 'shap_feature_importance.png'))
     plt.show()
@@ -400,7 +411,7 @@ def feature_importance_plot(model: RandomForestClassifier,
     names = [X_test.columns[i] for i in indices]
 
     # Create plot
-    plt.figure(figsize=(20, 5))
+    plt.figure(figsize=(20, 10))
 
     # Create plot title
     plt.title("Feature Importance")
@@ -438,7 +449,7 @@ def train_rfc_lrc(
     # Use a different solver if the default 'lbfgs' fails to converge
     # Reference:
     # https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
-    lrc = LogisticRegression(solver='lbfgs', max_iter=max_iter)
+    lrc = LogisticRegression(solver='lbfgs', max_iter=max_iter, random_state=42)
     param_grid = {
         'n_estimators': [200, 500],
         'max_features': ['auto', 'sqrt'],

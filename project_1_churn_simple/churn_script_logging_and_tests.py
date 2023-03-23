@@ -1,4 +1,8 @@
-'''This script is used to train and evaluate a model to predict customer churn.'''
+'''This script is used to train and evaluate a model to predict customer churn.
+
+Author: Adam Arnon
+Created: 03/22/2023
+'''
 import logging
 import os
 import tempfile
