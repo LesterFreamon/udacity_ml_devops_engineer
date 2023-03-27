@@ -8,3 +8,6 @@
 
 # Ignore wandb folder
 **/wandb/
+
+# MLflow
+**/mlruns/
