@@ -11,3 +11,6 @@
 
 # MLflow
 **/mlruns/
+**/starter/outputs/
+**/artifacts/
+**/multirun/
